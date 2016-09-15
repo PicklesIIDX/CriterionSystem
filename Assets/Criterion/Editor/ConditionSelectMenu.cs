@@ -1,8 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
-using System.Collections;
 using System.Collections.Generic;
-using PickleTools.UnityEditor;
 
 namespace PickleTools.Criterion {
 	public delegate void ConditionSelectHandler (ConditionSelectMenu menu, int item);
