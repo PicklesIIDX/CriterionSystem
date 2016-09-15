@@ -9,10 +9,10 @@ public class SequenceActionUpdateWorldStateEditor : SequenceActionBaseEditor, IS
 	WorldStateData worldStateData;
 	ConditionSelectMenu conditionSelectMenu;
 	Vector2 scrollPosition = Vector2.zero;
-	ConditionLoader conditionLoader;
+	CriterionDataLoader<ConditionModel> conditionLoader;
 
-	public override void Initialize (SequenceActionModel actionData, ActionLoader newActionLoader, 
-	                                 ConditionLoader newConditionLoader)
+	public override void Initialize (SequenceActionModel actionData, CriterionDataLoader<ActionModel> newActionLoader, 
+	                                 CriterionDataLoader<ConditionModel> newConditionLoader)
 	{
 		base.Initialize (actionData, newActionLoader, newConditionLoader);
 

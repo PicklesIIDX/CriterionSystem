@@ -75,18 +75,18 @@ namespace PickleTools.Criterion {
 
 		private List<int> selectableActions = new List<int>();
 
-		ActionLoader actionLoader;
+		CriterionDataLoader<ActionModel> actionLoader;
 
 		void OnEnable() {
-			actionLoader = new ActionLoader();
+			actionLoader = new CriterionDataLoader<ActionModel>();
 			actionLoader.Load();
 
 			selectableActions = new List<int>();
-			for (int a = 0; a < actionLoader.ActionModels.Length; a++) {
-				if (actionLoader.ActionModels[a] == null) {
+			for (int a = 0; a < actionLoader.Models.Length; a++) {
+				if (actionLoader.Models[a] == null) {
 					continue;
 				}
-				selectableActions.Add(actionLoader.ActionModels[a].UID);
+				selectableActions.Add(actionLoader.Models[a].UID);
 			}
 
 			CollectObjectTypePrefabs();
@@ -113,7 +113,7 @@ namespace PickleTools.Criterion {
 				for (int i = 0; i < selectableActions.Count; i++) {
 					SelectActionData data = new SelectActionData();
 					data.ActionUID = selectableActions[i];
-					ActionModel model = actionLoader.GetAction(data.ActionUID);
+					ActionModel model = actionLoader.GetData(data.ActionUID);
 					if (model != null) {
 						data.ActionName = model.Name;
 					}

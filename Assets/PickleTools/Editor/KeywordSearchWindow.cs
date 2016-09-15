@@ -22,10 +22,10 @@ namespace PickleTools.Criterion {
 		string keywords = "";
 		string[] keywordList = new string[0];
 
-		TriggerLoader triggerLoader;
-		SequenceLoader sequenceLoader;
-		ConditionLoader conditionLoader;
-		ActionLoader actionLoader;
+		CriterionDataLoader<TriggerModel> triggerLoader;
+		CriterionDataLoader<SequenceModel> sequenceLoader;
+		CriterionDataLoader<ConditionModel> conditionLoader;
+		CriterionDataLoader<ActionModel> actionLoader;
 
 		List<int> matchedItems = new List<int>();
 		Vector2 scrollPosition = Vector2.zero;
@@ -42,13 +42,13 @@ namespace PickleTools.Criterion {
 
 		void OnFocus(){
 
-			triggerLoader = new TriggerLoader();
+			triggerLoader = new CriterionDataLoader<TriggerModel>();
 			triggerLoader.Load();
-			conditionLoader = new ConditionLoader();
+			conditionLoader = new CriterionDataLoader<ConditionModel>();
 			conditionLoader.Load();
-			sequenceLoader = new SequenceLoader();
+			sequenceLoader = new CriterionDataLoader<SequenceModel>();
 			sequenceLoader.Load();
-			actionLoader = new ActionLoader();
+			actionLoader = new CriterionDataLoader<ActionModel>();
 			actionLoader.Load();
 
 			if(options == null){
@@ -97,23 +97,23 @@ namespace PickleTools.Criterion {
 				// parse keywords
 				// name search
 				if(options.RuleName){
-					matchedItems.AddRange(GetTriggersByName(triggerLoader.TriggerModels, keywordList, options));
+					matchedItems.AddRange(GetTriggersByName(triggerLoader.Models, keywordList, options));
 				}
 				// rule by fact search
 				if(options.ConditionName){
-					matchedItems.AddRange(GetTriggersByConditionName(triggerLoader.TriggerModels, keywordList, options, conditionLoader));
+					matchedItems.AddRange(GetTriggersByConditionName(triggerLoader.Models, keywordList, options, conditionLoader));
 				}
 				// rule by fact value search
 				if(options.ConditionValue){
-					matchedItems.AddRange(GetTriggersByConditionValue(triggerLoader.TriggerModels, keywordList, options));
+					matchedItems.AddRange(GetTriggersByConditionValue(triggerLoader.Models, keywordList, options));
 				}
 				// response by action name
 				if(options.ActionName){
-					matchedItems.AddRange(GetSequencesByActionName(sequenceLoader.SequenceModels, keywordList, options));
+					matchedItems.AddRange(GetSequencesByActionName(sequenceLoader.Models, keywordList, options));
 				}
 				// response by action value
 				if(options.ActionValue){
-					matchedItems.AddRange(GetSequencesByActionValue(sequenceLoader.SequenceModels, keywordList, options));
+					matchedItems.AddRange(GetSequencesByActionValue(sequenceLoader.Models, keywordList, options));
 				}
 				// rule/response by database
 
@@ -121,7 +121,7 @@ namespace PickleTools.Criterion {
 			// display list of rules/responses that match
 			scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
 			for(int m = 0; m < matchedItems.Count; m ++){
-				if(GUILayout.Button(triggerLoader.GetTrigger(matchedItems[m]).Name)){
+				if(GUILayout.Button(triggerLoader.GetData(matchedItems[m]).Name)){
 					Debug.Log("[KeywordSearchWindow.cs]: Selected item: " + matchedItems[m]);
 					// TODO: Select in Trigger Edit Window && Action Map Window
 				}
@@ -165,7 +165,7 @@ namespace PickleTools.Criterion {
 		}
 
 		public static List<int> GetTriggersByConditionName(TriggerModel[] triggerModelArray, string[] keywords, 
-			KeywordSearchOptions searchOptions, ConditionLoader loader){
+                   KeywordSearchOptions searchOptions, CriterionDataLoader<ConditionModel> loader){
 			List<int> matchedItemList = new List<int>();
 			for(int t = 0; t < triggerModelArray.Length; t ++){
 				TriggerModel triggerModel = triggerModelArray[t];
@@ -181,7 +181,7 @@ namespace PickleTools.Criterion {
 						keywordName = keywordName.ToLower();
 					}
 					for(int c = 0; c < triggerModel.Conditions.Length; c ++){
-						string conditionName = loader.GetCondition(triggerModel.Conditions[c].UID).Name;
+						string conditionName = loader.GetData(triggerModel.Conditions[c].UID).Name;
 						if(searchOptions.IgnoreCapitalization){
 							conditionName = conditionName.ToLower();
 						}
@@ -276,14 +276,14 @@ namespace PickleTools.Criterion {
 
 		private static int CheckActionName(SequenceActionModel[] sequenceActionModels, string keyword, KeywordSearchOptions searchOptions){
 			int matches = 0;
-			ActionLoader actionLoader = new ActionLoader();
+			CriterionDataLoader<ActionModel> actionLoader = new CriterionDataLoader<ActionModel>();
 			actionLoader.Load();
 			for(int a = 0; a < sequenceActionModels.Length; a ++){
 				matches += CheckActionName(sequenceActionModels[a].Then, keyword, searchOptions);
 				if(searchOptions.ContainsAllKeywords && matches > 0){
 					break;
 				}
-				ActionModel actionModel = actionLoader.GetAction(sequenceActionModels[a].UID);
+				ActionModel actionModel = actionLoader.GetData(sequenceActionModels[a].UID);
 				string actionName = "";
 				if(actionModel != null){
 					actionName = actionModel.Name;

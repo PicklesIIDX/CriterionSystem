@@ -14,8 +14,8 @@ namespace PickleTools.Criterion {
 
 		bool conditionEdited = false;
 
-		ConditionLoader conditionLoader;
-		TagLoader tagLoader;
+		CriterionDataLoader<ConditionModel> conditionLoader;
+		CriterionDataLoader<TagModel> tagLoader;
 
 		ConditionModel newCondition = new ConditionModel();
 
@@ -56,11 +56,11 @@ namespace PickleTools.Criterion {
 			iconSave = AssetDatabase.LoadAssetAtPath<Texture>("PickleTools/Criterion/Images/icon_save.png");
 			iconSaveWarning = AssetDatabase.LoadAssetAtPath<Texture>("PickleTools/Criterion/Images/icon_save_warning.png");
 
-			conditionLoader = new ConditionLoader();
+			conditionLoader = new CriterionDataLoader<ConditionModel>();
 			conditionLoader.Load();
 
-			conditions = new ConditionModel[conditionLoader.ConditionModels.Length];
-			System.Array.Copy(conditionLoader.ConditionModels, conditions, conditionLoader.ConditionModels.Length);
+			conditions = new ConditionModel[conditionLoader.Models.Length];
+			System.Array.Copy(conditionLoader.Models, conditions, conditionLoader.Models.Length);
 
 			//string currentSelectedJSON = EditorPrefs.GetString(CURRENT_SELECTION_STRING, "");
 			//if(currentSelectedJSON != "") {
@@ -77,14 +77,14 @@ namespace PickleTools.Criterion {
 
 			// TODO: Check for duplicates among DBs
 
-			tagLoader = new TagLoader();
+			tagLoader = new CriterionDataLoader<TagModel>();
 			tagLoader.Load();
 
 			conditionSelectMenu = new ConditionSelectMenu();
 
-			string[] tagTypes = new string[tagLoader.TagModels.Length];
+			string[] tagTypes = new string[tagLoader.Models.Length];
 			for (int t = 0; t < tagTypes.Length; t++) {
-				tagTypes[t] = tagLoader.TagModels[t].Name;
+				tagTypes[t] = tagLoader.Models[t].Name;
 			}
 
 			for (int t = 0; t < tagTypes.Length; t++) {
@@ -163,17 +163,13 @@ namespace PickleTools.Criterion {
 			}
 			if (GUILayout.Button("+", skin.button, GUILayout.Width(position.width * 0.1f)) && newCondition.Name != "") {
 				// clicking will create an empty entry for fact and select it
-				conditionLoader.AddCondition(
-					newCondition.Name,
-					"",
-					"This is a new condition. You should update its properties :D!",
-					new List<int> { 0 },
-					(int)ValueTypeLoader.ValueType.TEXT);
+				conditionLoader.AddData(
+					newCondition.Name);
 				EditorFileSaver fileSaver = new EditorFileSaver("");
 				conditionLoader.Save(fileSaver);
 				Initialize();
 				conditionEdited = false;
-				newCondition = conditionLoader.GetCondition(conditionLoader.HighestUID - 1);
+				newCondition = conditionLoader.GetData(conditionLoader.HighestUID - 1);
 				// set our selection to the new fact
 				selectedCondition = newCondition;
 				// update the current fields with our new values
@@ -313,7 +309,7 @@ namespace PickleTools.Criterion {
 					}
 				}
 				if (GUILayout.Button("+", skin.button, GUILayout.Width(position.width * 0.1f)) && newTagType != "") {
-					tagLoader.AddTag(newTagType);
+					tagLoader.AddData(newTagType);
 					EditorFileSaver fileSaver = new EditorFileSaver("");
 					tagLoader.Save(fileSaver);
 					Initialize();
@@ -332,7 +328,7 @@ namespace PickleTools.Criterion {
 					saveData = true;
 				}
 				if (saveData) {
-					conditionLoader.ConditionModels[selectedCondition.UID] = selectedCondition;
+					conditionLoader.Models[selectedCondition.UID] = selectedCondition;
 					EditorFileSaver fileSaver = new EditorFileSaver("");
 					conditionLoader.Save(fileSaver);
 					EditorPrefs.SetString(CURRENT_SELECTION_STRING, JsonMapper.ToJson(selectedCondition));
@@ -351,7 +347,7 @@ namespace PickleTools.Criterion {
 		bool DrawTag(ref int tag) {
 			bool deleted = false;
 			EditorGUILayout.BeginHorizontal();
-			string[] tagNames = tagLoader.TagNames;
+			string[] tagNames = tagLoader.Names;
 			tag = EditorGUILayout.Popup(tag, tagNames, skin.button, GUILayout.Height(24));
 			if (GUILayout.Button("X", skin.button, GUILayout.Width(position.width * 0.1f))) {
 				deleted = true;

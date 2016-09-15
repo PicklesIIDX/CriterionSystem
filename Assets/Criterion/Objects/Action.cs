@@ -141,17 +141,17 @@ namespace PickleTools.Criterion {
 			runtimeData[index] = value;
 		}
 
-		ActionLoader actionLoader;
+		CriterionDataLoader<ActionModel> actionLoader;
 
 		public override string ToString(){
 			if(actionLoader == null){
-				actionLoader = new ActionLoader();
+				actionLoader = new CriterionDataLoader<ActionModel>();
 				actionLoader.Load();
 			}
-			if(actionLoader.GetAction(uid) == null){
+			if(actionLoader.GetData(uid) == null){
 				actionLoader.Load();
 			}
-			ActionModel model = actionLoader.GetAction(uid);
+			ActionModel model = actionLoader.GetData(uid);
 		
 			string actionString = "Action: " + UID + "\n";
 			actionString += "Parameters------------\n";
@@ -172,13 +172,13 @@ namespace PickleTools.Criterion {
 
 		public string ToString(object[] runtimeData){
 			if(actionLoader == null){
-				actionLoader = new ActionLoader();
+				actionLoader = new CriterionDataLoader<ActionModel>();
 				actionLoader.Load();
 			}
-			if(actionLoader.GetAction(uid) == null){
+			if(actionLoader.GetData(uid) == null){
 				actionLoader.Load();
 			}
-			ActionModel model = actionLoader.GetAction(uid);
+			ActionModel model = actionLoader.GetData(uid);
 
 			string actionString = "Action: " + UID + "\n";
 			actionString += "Parameters------------\n";

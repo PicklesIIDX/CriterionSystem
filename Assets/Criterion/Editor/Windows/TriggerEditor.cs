@@ -5,6 +5,7 @@ using PickleTools.Criterion.ConditionLookup;
 using PickleTools.Extensions.ArrayExtensions;
 using PickleTools.FileAccess;
 using System.Text.RegularExpressions;
+using UnityEngine.Assertions;
 
 namespace PickleTools.Criterion {
 	public class TriggerEditor : EditorWindow {
@@ -33,9 +34,9 @@ namespace PickleTools.Criterion {
 
 		bool updateTriggersFromSearch = false;
 
-		TriggerLoader triggerLoader;
-		ConditionLoader conditionLoader;
-		TagLoader tagLoader;
+		CriterionDataLoader<TriggerModel> triggerLoader;
+		CriterionDataLoader<ConditionModel> conditionLoader;
+		CriterionDataLoader<TagModel> tagLoader;
 
 		EditorFileSaver fileSaver;
 
@@ -43,7 +44,7 @@ namespace PickleTools.Criterion {
 		Regex regularCharacters;
 		string nameError = "";
 
-		public static readonly string IMAGE_PATH = "Criterion/Editor/Images/";
+		public static readonly string IMAGE_PATH = "Assets/Criterion/Images/";
 		public static readonly string PREFS_TRIGGER_TYPE_SELECTED = "TriggerEditor.Type";
 		public static readonly string PREFS_CURRENT_TRIGGER = "TriggerEditor.CurrentTrigger";
 		public static readonly string PREFS_REFRESH_TRIGGER = "TriggerEditor.Refresh";
@@ -62,7 +63,7 @@ namespace PickleTools.Criterion {
 			fileSaver = new EditorFileSaver("");
 
 			skin = AssetDatabase.LoadAssetAtPath<GUISkin>(IMAGE_PATH + "gui_skin.guiskin");
-
+			Debug.LogWarning("Loading asset " + IMAGE_PATH + "gui_skin.guiskin");
 			imageBackground = AssetDatabase.LoadAssetAtPath<Texture>(IMAGE_PATH + "/bg_02.png");
 
 			searchOptions = new KeywordSearchOptions();
@@ -101,7 +102,7 @@ namespace PickleTools.Criterion {
 			}
 
 			try {
-				newTriggerName = triggerLoader.GetTrigger(selectedTrigger).Name;
+				newTriggerName = triggerLoader.GetData(selectedTrigger).Name;
 			} catch {
 				newTriggerName = "NONE";
 			}
@@ -120,10 +121,10 @@ namespace PickleTools.Criterion {
 		}
 
 		void Refresh() {
-			conditionLoader = new ConditionLoader();
+			conditionLoader = new CriterionDataLoader<ConditionModel>();
 			conditionLoader.Load();
 
-			tagLoader = new TagLoader();
+			tagLoader = new CriterionDataLoader<TagModel>();
 			tagLoader.Load();
 
 			for (int c = 0; c < conditionSelectMenus.Count; c++) {
@@ -133,11 +134,11 @@ namespace PickleTools.Criterion {
 			//string json = EditorPrefs.GetString(MazerMakerUtilities.PREFS_TRIGGER_TRIGGER_LIST, "");
 			//triggerModels = JsonMapper.ToObject<TriggerModel[]>(json);
 
-			triggerLoader = new TriggerLoader();
+			triggerLoader = new CriterionDataLoader<TriggerModel>();
 			triggerLoader.Load();
 			triggerModels = new TriggerModel[triggerLoader.HighestUID];
-			for (int t = 0; t < triggerLoader.TriggerModels.Length; t++) {
-				triggerModels[t] = triggerLoader.TriggerModels[t];
+			for (int t = 0; t < triggerLoader.Models.Length; t++) {
+				triggerModels[t] = triggerLoader.Models[t];
 			}
 			if (triggerModels.Length < triggerLoader.HighestUID) {
 				System.Array.Resize<TriggerModel>(ref triggerModels, triggerLoader.HighestUID);
@@ -205,7 +206,7 @@ namespace PickleTools.Criterion {
 				skin = AssetDatabase.LoadAssetAtPath<GUISkin>(IMAGE_PATH + "gui_skin.guiskin");
 			}
 			if (skin != null) {
-				GUILayout.Label("Please select a trigger in the scene view to edit its details.", skin.FindStyle("title"));
+				GUILayout.Label("Please select a trigger in the scene view to edit its details.", skin.FindStyle("TriggerEditor.Title"));
 			}
 		}
 
@@ -224,16 +225,16 @@ namespace PickleTools.Criterion {
 		void UpdateTriggerListFromSearch() {
 			List<TriggerModel> tempList = new List<TriggerModel>();
 			if (searchField == "") {
-				tempList.AddRange(triggerLoader.TriggerModels);
+				tempList.AddRange(triggerLoader.Models);
 			} else {
 				List<int> matchedUIDs = new List<int>();
-				matchedUIDs = KeywordSearchWindow.GetTriggersByName(triggerLoader.TriggerModels, searchField.Split(','), searchOptions);
-				for (int t = 0; t < triggerLoader.TriggerModels.Length; t++) {
-					if (triggerLoader.TriggerModels[t] == null) {
+				matchedUIDs = KeywordSearchWindow.GetTriggersByName(triggerLoader.Models, searchField.Split(','), searchOptions);
+				for (int t = 0; t < triggerLoader.Models.Length; t++) {
+					if (triggerLoader.Models[t] == null) {
 						continue;
 					}
-					if (matchedUIDs.Contains(triggerLoader.TriggerModels[t].UID)) {
-						tempList.Add(triggerLoader.TriggerModels[t]);
+					if (matchedUIDs.Contains(triggerLoader.Models[t].UID)) {
+						tempList.Add(triggerLoader.Models[t]);
 					}
 				}
 			}
@@ -450,18 +451,19 @@ namespace PickleTools.Criterion {
 			GUILayout.Space(4);
 			if (GUILayout.Button(new GUIContent("+ NEW TRIGGER", "Click this to add a new trigger to the bottom of the list."),
 				skin.button, GUILayout.Height(48))) {
-				TriggerModel newTrigger = triggerLoader.AddTrigger("NewTrigger" + triggerLoader.HighestUID, new TriggerConditionModel[0]);
+				TriggerModel newTrigger = triggerLoader.AddData("NewTrigger" + triggerLoader.HighestUID);
 				triggerLoader.Save(fileSaver);
 
 				System.Array.Resize<TriggerModel>(ref triggerModels, triggerLoader.HighestUID);
 				triggerModels[newTrigger.UID] = newTrigger;
 
 				// update the sequence database to make sure that we have a matching sequence to our new trigger
-				SequenceLoader sequenceLoader = new SequenceLoader();
+				CriterionDataLoader<SequenceModel> sequenceLoader = new CriterionDataLoader<SequenceModel>();
 				sequenceLoader.Load();
-				if (sequenceLoader.GetSequence(newTrigger.UID) == null) {
-					sequenceLoader.AddSequence(newTrigger.Name, newTrigger.UID);
+				if (sequenceLoader.GetData(newTrigger.UID) == null) {
+					SequenceModel sequenceModel = sequenceLoader.AddData(newTrigger.Name);
 					sequenceLoader.Save(fileSaver);
+					Assert.IsTrue(sequenceModel.UID == newTrigger.UID);
 				}
 
 				//EditorPrefs.SetString(MazerMakerUtilities.PREFS_TRIGGER_TRIGGER_LIST, JsonMapper.ToJson(triggerLoader.TriggerModels));
@@ -490,7 +492,7 @@ namespace PickleTools.Criterion {
 					triggerLoader.Remove(deleteIndex);
 					triggerLoader.Save(fileSaver);
 
-					SequenceLoader sequenceLoader = new SequenceLoader();
+					CriterionDataLoader<SequenceModel> sequenceLoader = new CriterionDataLoader<SequenceModel>();
 					sequenceLoader.Load();
 					sequenceLoader.Remove(deleteIndex);
 					sequenceLoader.Save(fileSaver);
@@ -582,17 +584,17 @@ namespace PickleTools.Criterion {
 				if (triggerModels[t] == null || triggerModels[t].UID < 0) {
 					continue;
 				}
-				triggerLoader.TriggerModels[triggerModels[t].UID] = triggerModels[t];
+				triggerLoader.Models[triggerModels[t].UID] = triggerModels[t];
 			}
 			triggerLoader.Save(fileSaver);
 
-			SequenceLoader sequenceLoader = new SequenceLoader();
+			CriterionDataLoader<SequenceModel> sequenceLoader = new CriterionDataLoader<SequenceModel>();
 			sequenceLoader.Load();
 			for (int t = 0; t < triggerModels.Length; t++) {
 				if (triggerModels[t] == null || triggerModels[t].UID < 0) {
 					continue;
 				}
-				sequenceLoader.SequenceModels[triggerModels[t].UID].Name = triggerModels[t].Name;
+				sequenceLoader.Models[triggerModels[t].UID].Name = triggerModels[t].Name;
 			}
 			sequenceLoader.Save(fileSaver);
 

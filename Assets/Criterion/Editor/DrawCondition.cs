@@ -7,7 +7,7 @@ namespace PickleTools.Criterion {
 		const string GUI_SKIN_PATH = "Assets/queryer/Skin.guiskin";
 
 		public static bool Draw(GUIContent titleContent, ref TriggerConditionModel triggerConditionModel,
-								ConditionSelectMenu conditionSelectMenu, ConditionLoader conditionLoader,
+								ConditionSelectMenu conditionSelectMenu, CriterionDataLoader<ConditionModel> conditionLoader,
 									float screenWidth, GUIStyle factStyle = null, GUISkin valueSkin = null) {
 
 
@@ -24,11 +24,11 @@ namespace PickleTools.Criterion {
 
 			EditorGUILayout.BeginHorizontal();
 
-			if (conditionLoader == null || conditionLoader.GetCondition(triggerConditionModel.UID) == null) {
-				conditionLoader = new ConditionLoader();
+			if (conditionLoader == null || conditionLoader.GetData(triggerConditionModel.UID) == null) {
+				conditionLoader = new CriterionDataLoader<ConditionModel>();
 				conditionLoader.Load();
 			}
-			ConditionModel selectedCondition = conditionLoader.GetCondition(triggerConditionModel.UID);
+			ConditionModel selectedCondition = conditionLoader.GetData(triggerConditionModel.UID);
 			// condition
 			triggerConditionModel.UID = conditionSelectMenu.DrawSelectMenu(selectedCondition.Name + ":\n" +
 				selectedCondition.Description, Event.current.mousePosition, screenWidth, valueSkin);
@@ -62,7 +62,7 @@ namespace PickleTools.Criterion {
 
 		public static bool DrawCompressed(ref TriggerConditionModel triggerConditionModel,
 												   ConditionSelectMenu conditionSelectMenu,
-													  ConditionLoader conditionLoader,
+													  CriterionDataLoader<ConditionModel> conditionLoader,
 												   float screenWidth, int controlID1 = 0, int controlID2 = 1,
 												   GUIStyle factStyle = null, GUISkin valueSkin = null) {
 			bool deleted = false;
@@ -75,12 +75,12 @@ namespace PickleTools.Criterion {
 				GUILayout.BeginHorizontal();
 			}
 
-			if (conditionLoader == null || conditionLoader.GetCondition(triggerConditionModel.UID) == null) {
-				conditionLoader = new ConditionLoader();
+			if (conditionLoader == null || conditionLoader.GetData(triggerConditionModel.UID) == null) {
+				conditionLoader = new CriterionDataLoader<ConditionModel>();
 				conditionLoader.Load();
 			}
 
-			ConditionModel selectedCondition = conditionLoader.GetCondition(triggerConditionModel.UID);
+			ConditionModel selectedCondition = conditionLoader.GetData(triggerConditionModel.UID);
 			if (selectedCondition == null) {
 				GUILayout.EndHorizontal();
 				return deleted;

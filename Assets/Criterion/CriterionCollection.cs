@@ -22,7 +22,7 @@ namespace PickleTools.Criterion {
 		/// TODO: Allow specifying the databases.
 		/// </summary>
 		public void Initialize(TriggerModel[] loadedTriggers, int highestTriggerUID, 
-		                       ConditionLoader conditionLoader, SequenceModel[] loadedSequences,
+		                       CriterionDataLoader<ConditionModel> conditionLoader, SequenceModel[] loadedSequences,
 		                      int highestSequenceUID, int highestActionUID){
 			LoadTriggers(loadedTriggers, highestTriggerUID, conditionLoader);
 			LoadSequences(loadedSequences, highestSequenceUID, highestActionUID);
@@ -35,7 +35,7 @@ namespace PickleTools.Criterion {
 		/// <summary>
 		/// Loads the triggers.
 		/// </summary>
-		void LoadTriggers(TriggerModel[] loadedTriggers, int highestTriggerUID, ConditionLoader conditionLoader){
+		void LoadTriggers(TriggerModel[] loadedTriggers, int highestTriggerUID, CriterionDataLoader<ConditionModel> conditionLoader){
 			triggers = new TriggerObject[highestTriggerUID];
 
 			// TriggerLoader should load databases into TriggerModels

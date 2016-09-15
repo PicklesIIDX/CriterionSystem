@@ -7,12 +7,12 @@ namespace PickleTools.Criterion {
 		
 		Vector2 scrollPosition = Vector2.zero;
 
-		ActionLoader actionLoader;
+		CriterionDataLoader<ActionModel> actionLoader;
 
 		readonly string IMAGE_PATH = "PickleTools/Criterion/Images/";
 
-		public override void Initialize(SequenceActionModel actionData, ActionLoader newActionLoader,
-		                                ConditionLoader newConditionLoader){
+		public override void Initialize(SequenceActionModel actionData, CriterionDataLoader<ActionModel> newActionLoader,
+		                                CriterionDataLoader<ConditionModel> newConditionLoader){
 
 			base.Initialize(actionData, newActionLoader, newConditionLoader);
 
@@ -22,7 +22,7 @@ namespace PickleTools.Criterion {
 
 			actionLoader = newActionLoader;
 			if(actionLoader == null) {
-				actionLoader = new ActionLoader();
+				actionLoader = new CriterionDataLoader<ActionModel>();
 				actionLoader.Load();
 			}
 		}
@@ -47,7 +47,7 @@ namespace PickleTools.Criterion {
 			scrollPosition = GUILayout.BeginScrollView(scrollPosition, skin.scrollView);
 
 			EditorGUILayout.BeginVertical();
-			ActionModel model = actionLoader.GetAction(sequenceActionModel.UID);
+			ActionModel model = actionLoader.GetData(sequenceActionModel.UID);
 			if(model == null){
 				
 			} else {

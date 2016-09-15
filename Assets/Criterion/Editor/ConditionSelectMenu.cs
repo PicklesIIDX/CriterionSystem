@@ -23,9 +23,9 @@ namespace PickleTools.Criterion {
 		[SerializeField]
 		public int LastEntrySelected = -1;
 
-		ConditionLoader conditionLoader;
+		CriterionDataLoader<ConditionModel> conditionLoader;
 
-		public ConditionSelectMenu(ConditionLoader newConditionLoader = null, TagLoader newTagLoader = null){
+		public ConditionSelectMenu(CriterionDataLoader<ConditionModel> newConditionLoader = null, CriterionDataLoader<TagModel> newTagLoader = null){
 			menu = new GenericMenu();
 
 			Refresh(newConditionLoader, newTagLoader);
@@ -40,39 +40,39 @@ namespace PickleTools.Criterion {
 		/// <summary>
 		/// Reloads the conditions and tags to ensure our list is up to date.
 		/// </summary>
-		public void Refresh(ConditionLoader newConditionLoader, TagLoader newTagLoader){
+		public void Refresh(CriterionDataLoader<ConditionModel> newConditionLoader, CriterionDataLoader<TagModel> newTagLoader){
 			if(menu == null){
 				menu = new GenericMenu();
 			}
 
 			conditionLoader = newConditionLoader;
-			conditionLoader = new ConditionLoader();
+			conditionLoader = new CriterionDataLoader<ConditionModel>();
 			conditionLoader.Load();
 
-			TagLoader tagLoader = newTagLoader;
+			CriterionDataLoader<TagModel> tagLoader = newTagLoader;
 			if(tagLoader == null){
-				tagLoader = new TagLoader();;
+				tagLoader = new CriterionDataLoader<TagModel>();;
 				tagLoader.Load();
 			}
 
 
 
-			for(int t = 0; t < tagLoader.TagModels.Length; t ++){
-				if(tagLoader.TagModels[t] == null){
+			for(int t = 0; t < tagLoader.Models.Length; t ++){
+				if(tagLoader.Models[t] == null){
 					continue;
 				}
 				List<ConditionModel> categoryEntries = new List<ConditionModel>();
-				for(int c = 0; c < conditionLoader.ConditionModels.Length; c ++){
-					if(conditionLoader.ConditionModels[c] == null){
+				for(int c = 0; c < conditionLoader.Models.Length; c ++){
+					if(conditionLoader.Models[c] == null){
 						continue;
 					}
-					for(int cTag = 0; cTag < conditionLoader.ConditionModels[c].Tags.Count; cTag ++){
-						if(conditionLoader.ConditionModels[c].Tags[cTag] == tagLoader.TagModels[t].UID){
-							categoryEntries.Add(conditionLoader.ConditionModels[c]);
+					for(int cTag = 0; cTag < conditionLoader.Models[c].Tags.Count; cTag ++){
+						if(conditionLoader.Models[c].Tags[cTag] == tagLoader.Models[t].UID){
+							categoryEntries.Add(conditionLoader.Models[c]);
 						}
 					}
 				}
-				AddCategory(tagLoader.TagModels[t].Name, categoryEntries.ToArray());
+				AddCategory(tagLoader.Models[t].Name, categoryEntries.ToArray());
 			}
 		}
 
@@ -98,7 +98,7 @@ namespace PickleTools.Criterion {
 			//	conditionLoader = new ConditionLoader();
 			//	conditionLoader.Load();
 			//}
-			ConditionModel model = conditionLoader.GetCondition(LastEntrySelected);
+			ConditionModel model = conditionLoader.GetData(LastEntrySelected);
 			if(model == null){
 				return LastEntrySelected;
 			}

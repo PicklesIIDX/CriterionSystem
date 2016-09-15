@@ -5,7 +5,7 @@ using LitJson;
 using PickleTools.FileAccess;
 
 namespace PickleTools.Criterion {
-	public class CriterionDataLoader<T> {
+	public class CriterionDataLoader<T> where T: ICriterionData {
 
 		T[] models = new T[0];
 		public T[] Models {
@@ -30,15 +30,15 @@ namespace PickleTools.Criterion {
 
 		public int HighestUID = 0;
 
-		private readonly string RESOURCE_PATH = "data/data";
-		private readonly string RESOURCE_NAME = "data";
+		private readonly string RESOURCE_PATH = "Criterion/Data";
+		private readonly string RESOURCE_NAME = "Data";
 
 		private readonly bool SAVE_INDIVIDUAL_FILES = false;
 
 		private bool hasDuplicates = false;
 
-		public CriterionDataLoader(string dataPath = "data", string dataName = "data", bool saveIndividualFiles = false){
-			RESOURCE_PATH = "data/" + dataPath;
+		public CriterionDataLoader(string dataPath = "Data", string dataName = "Data", bool saveIndividualFiles = false){
+			RESOURCE_PATH = "Criterion/" + dataPath;
 			RESOURCE_NAME = dataName;
 			SAVE_INDIVIDUAL_FILES = saveIndividualFiles;
 		}

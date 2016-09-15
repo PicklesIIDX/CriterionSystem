@@ -8,7 +8,7 @@ namespace PickleTools.Criterion {
 		const int ACTION_TYPE_UPDATE_WORLD_STATE = -1;
 
 		public static bool Draw(ref SequenceActionModel sequenceActionModel, WorldStateData worldStateData,
-								ConditionLoader conditionLoader, ActionLoader actionLoader,
+		                        CriterionDataLoader<ConditionModel> conditionLoader, CriterionDataLoader<ActionModel> actionLoader,
 										ActionSelectMenu actionSelectMenu, ConditionSelectMenu conditionSelectMenu,
 								int controlID, float screenWidth, int thenActionLevel = 0,
 								GUIStyle actionStyle = null, GUISkin skin = null) {
@@ -16,11 +16,11 @@ namespace PickleTools.Criterion {
 
 
 			int actionIndex = sequenceActionModel.UID;
-			if (actionLoader == null || actionLoader.GetAction(actionIndex) == null) {
-				actionLoader = new ActionLoader();
+			if (actionLoader == null || actionLoader.GetData(actionIndex) == null) {
+				actionLoader = new CriterionDataLoader<ActionModel>();
 				actionLoader.Load();
 			}
-			ActionModel selectedAction = actionLoader.GetAction(actionIndex);
+			ActionModel selectedAction = actionLoader.GetData(actionIndex);
 
 			GUILayout.BeginVertical(actionStyle, GUILayout.Width(screenWidth));
 			EditorGUILayout.BeginHorizontal();
@@ -33,7 +33,7 @@ namespace PickleTools.Criterion {
 			actionIndex = actionSelectMenu.DrawSelectMenu(selectedAction.Description, Event.current.mousePosition,
 				screenWidth, skin, GUILayout.Width(screenWidth));
 			if (EditorGUI.EndChangeCheck()) {
-				ActionModel defaultAction = actionLoader.GetAction(actionIndex);
+				ActionModel defaultAction = actionLoader.GetData(actionIndex);
 				SequenceActionModel[] thenAction = sequenceActionModel.Then;
 				sequenceActionModel = new SequenceActionModel() {
 					UID = actionIndex,

@@ -15,7 +15,7 @@ namespace PickleTools.Criterion {
 			get { return sequenceActionModel; }
 		}
 
-		ActionLoader actionLoader;
+		CriterionDataLoader<ActionModel> actionLoader;
 		
 		protected GUISkin skin;
 		Texture iconUndoInactive;
@@ -38,17 +38,17 @@ namespace PickleTools.Criterion {
 
 		static readonly string IMAGE_PATH = "PickleTools/Criterion/Images/";
 
-		public virtual void Initialize (SequenceActionModel actionData, ActionLoader newActionLoader, 
-		                                ConditionLoader newConditionLoader)
+		public virtual void Initialize (SequenceActionModel actionData, CriterionDataLoader<ActionModel> newActionLoader, 
+		                                CriterionDataLoader<ConditionModel> newConditionLoader)
 		{
 			sequenceActionModel = actionData;
 			actionLoader = newActionLoader;
 			if(actionLoader == null) {
-				actionLoader = new ActionLoader();
+				actionLoader = new CriterionDataLoader<ActionModel>();
 				actionLoader.Load();
 			}
 			try {
-				actionDescription = actionLoader.GetAction(sequenceActionModel.UID).Description;
+				actionDescription = actionLoader.GetData(sequenceActionModel.UID).Description;
 			} catch {
 				actionDescription = "Could not find a description for this action.";
 			}
@@ -141,7 +141,7 @@ namespace PickleTools.Criterion {
 
 			GUILayout.BeginVertical();
 			string actionName = "no_name";
-			ActionModel actionModel = actionLoader.GetAction(sequenceActionModel.UID);
+			ActionModel actionModel = actionLoader.GetData(sequenceActionModel.UID);
 			if(actionModel != null){
 				actionName = actionModel.Name;
 			}
@@ -213,7 +213,7 @@ namespace PickleTools.Criterion {
 				return;
 			}
 			GUIContent titleContent = new GUIContent("Parameter " + parameter);
-			ActionModel model = actionLoader.GetAction(sequenceActionModel.UID);
+			ActionModel model = actionLoader.GetData(sequenceActionModel.UID);
 			if(model != null){
 				titleContent.text = model.Parameters[parameter].Name;
 				titleContent.tooltip = model.Parameters[parameter].Description;

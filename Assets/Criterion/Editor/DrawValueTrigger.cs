@@ -11,7 +11,7 @@ namespace PickleTools.Criterion {
 
 		private static SearchableSelectList triggerSearchList;
 		static Dictionary<int, object> triggerUIDFromSelection = new Dictionary<int, object>();
-		static TriggerLoader triggerLoader;
+		static CriterionDataLoader<TriggerModel> triggerLoader;
 
 		static string SELECTED_TRIGGER_PREFS = "Criterion.SelectedTrigger";
 
@@ -29,12 +29,12 @@ namespace PickleTools.Criterion {
 			int triggerUID = 0;
 			int.TryParse(currentValue.ToString(), out triggerUID);
 
-			if (triggerLoader == null || triggerLoader.GetTrigger(triggerUID) == null) {
-				triggerLoader = new TriggerLoader();
+			if (triggerLoader == null || triggerLoader.GetData(triggerUID) == null) {
+				triggerLoader = new CriterionDataLoader<TriggerModel>();
 				triggerLoader.Load();
 			}
 			if (triggerSearchList == null) {
-				triggerSearchList = new SearchableSelectList(new List<string>(triggerLoader.TriggerNames),
+				triggerSearchList = new SearchableSelectList(new List<string>(triggerLoader.Names),
 															 delegate (int selection) {
 																 triggerUIDFromSelection.Add(controlIDs[0], selection);
 																 PopupWindow.focusedWindow.Close();
@@ -42,7 +42,7 @@ namespace PickleTools.Criterion {
 			}
 
 			GUILayout.BeginHorizontal(options);
-			TriggerModel model = triggerLoader.GetTrigger(triggerUID);
+			TriggerModel model = triggerLoader.GetData(triggerUID);
 			if (model != null) {
 				title.text = model.Name;
 			}

@@ -94,20 +94,20 @@ namespace PickleTools.Criterion {
 
 		QueryHandler queryHandler;
 
-		ConditionLoader conditionLoader;
+		CriterionDataLoader<ConditionModel> conditionLoader;
 
-		public Memory(QueryHandler handler, ConditionLoader singletonConditionLoader){
+		public Memory(QueryHandler handler, CriterionDataLoader<ConditionModel> singletonConditionLoader){
 			queryHandler = handler;
 			// create an entry for every condition
 			conditionLoader = singletonConditionLoader;
 			InitializeFragments(conditionLoader.HighestUID);
 		}
 
-		public Memory(MemoryModel model, QueryHandler handler, ConditionLoader singletonConditionLoader){
+		public Memory(MemoryModel model, QueryHandler handler, CriterionDataLoader<ConditionModel> singletonConditionLoader){
 			queryHandler = handler;
 			conditionLoader = singletonConditionLoader;
 			if(conditionLoader == null){
-				conditionLoader = new ConditionLoader();
+				conditionLoader = new CriterionDataLoader<ConditionModel>();
 				conditionLoader.Load();
 			}
 			InitializeFragments(conditionLoader.HighestUID);
@@ -144,8 +144,12 @@ namespace PickleTools.Criterion {
 		}
 
 		public void Save(IFileSaver fileSaver, int slot = 0){
-			MemoryLoader loader = new MemoryLoader();
-			loader.Save(ToMemoryModel(), slot, fileSaver);
+			CriterionDataLoader<MemoryModel> loader = new CriterionDataLoader<MemoryModel>();
+			MemoryModel model = ToMemoryModel();
+			MemoryModel newModel = loader.AddData(model.Name);
+			newModel.Fragments = model.Fragments;
+			newModel.UID = model.UID;
+			loader.Save(fileSaver);
 		}
 
 		public void UpdateAt(float deltaTime){
@@ -207,8 +211,8 @@ namespace PickleTools.Criterion {
 				AddFragments(uid);
 			}
 			if(fragments[uid] == null || fragments[uid].Evaluation == null){
-				fragments[uid] = new MemoryFragmentObject(uid, conditionLoader.ConditionModels[uid].Name,
-					conditionLoader.ConditionModels[uid].ValueUID, new QueryEvaluationBool(uid, newValue));
+				fragments[uid] = new MemoryFragmentObject(uid, conditionLoader.Models[uid].Name,
+				                                          conditionLoader.Models[uid].ValueUID, new QueryEvaluationBool(uid, newValue));
 			}
 			fragments[uid].Evaluation.UpdateValue(newValue);
 			fragments[uid].Expiration = expiration;
@@ -219,8 +223,8 @@ namespace PickleTools.Criterion {
 				AddFragments(uid);
 			}
 			if(fragments[uid] == null || fragments[uid].Evaluation == null){
-				fragments[uid] = new MemoryFragmentObject(uid, conditionLoader.ConditionModels[uid].Name,
-					conditionLoader.ConditionModels[uid].ValueUID, new QueryEvaluationFloat(uid, newValue));
+				fragments[uid] = new MemoryFragmentObject(uid, conditionLoader.Models[uid].Name,
+				                                          conditionLoader.Models[uid].ValueUID, new QueryEvaluationFloat(uid, newValue));
 			}
 			fragments[uid].Evaluation.UpdateValue(newValue);
 			fragments[uid].Expiration = expiration;
@@ -231,8 +235,8 @@ namespace PickleTools.Criterion {
 				AddFragments(uid);
 			}
 			if(fragments[uid] == null || fragments[uid].Evaluation == null){
-				fragments[uid] = new MemoryFragmentObject(uid, conditionLoader.ConditionModels[uid].Name,
-					conditionLoader.ConditionModels[uid].ValueUID, new QueryEvaluationFloat(uid, newValue));
+				fragments[uid] = new MemoryFragmentObject(uid, conditionLoader.Models[uid].Name,
+				                                          conditionLoader.Models[uid].ValueUID, new QueryEvaluationFloat(uid, newValue));
 			}
 			fragments[uid].Evaluation.IncrementValue(newValue);
 			fragments[uid].Expiration = expiration;
@@ -243,8 +247,8 @@ namespace PickleTools.Criterion {
 				AddFragments(uid);
 			}
 			if(fragments[uid] == null || fragments[uid].Evaluation == null){
-				fragments[uid] = new MemoryFragmentObject(uid, conditionLoader.ConditionModels[uid].Name,
-					conditionLoader.ConditionModels[uid].ValueUID, new QueryEvaluationObject(uid, newValue));
+				fragments[uid] = new MemoryFragmentObject(uid, conditionLoader.Models[uid].Name,
+				                                          conditionLoader.Models[uid].ValueUID, new QueryEvaluationObject(uid, newValue));
 			}
 			fragments[uid].Evaluation.UpdateValue(newValue);
 			fragments[uid].Expiration = expiration;

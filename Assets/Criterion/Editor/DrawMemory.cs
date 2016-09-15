@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace PickleTools.Criterion {
 	public class DrawMemory : MonoBehaviour {
 		public static WorldStateData Draw(WorldStateData worldStateData,
-										  ConditionLoader conditionLoader,
+		                                  CriterionDataLoader<ConditionModel> conditionLoader,
 										  GUISkin skin,
 										  ConditionSelectMenu conditionSelectMenu, float screenWidth) {
 
@@ -16,13 +16,13 @@ namespace PickleTools.Criterion {
 				worldStateData = new WorldStateData(0, "", 0.0f, false, false);
 			}
 
-			if (conditionLoader == null || conditionLoader.GetCondition(worldStateData.ConditionUID) == null) {
-				conditionLoader = new ConditionLoader();
+			if (conditionLoader == null || conditionLoader.GetData(worldStateData.ConditionUID) == null) {
+				conditionLoader = new CriterionDataLoader<ConditionModel>();
 				conditionLoader.Load();
 			}
 
 			string conditionDescription = "null";
-			ConditionModel selectedCondition = conditionLoader.GetCondition(worldStateData.ConditionUID);
+			ConditionModel selectedCondition = conditionLoader.GetData(worldStateData.ConditionUID);
 			if (selectedCondition == null) {
 				worldStateData.ConditionUID = 0;
 				conditionSelectMenu.LastEntrySelected = 0;
@@ -34,7 +34,7 @@ namespace PickleTools.Criterion {
 			worldStateData.ConditionUID = conditionSelectMenu.DrawSelectMenu(conditionDescription, Event.current.mousePosition,
 																  screenWidth, skin, GUILayout.Width(screenWidth));
 			if (selectedCondition == null || worldStateData.ConditionUID != selectedCondition.UID) {
-				selectedCondition = conditionLoader.GetCondition(worldStateData.ConditionUID);
+				selectedCondition = conditionLoader.GetData(worldStateData.ConditionUID);
 			}
 			EditorGUILayout.EndHorizontal();
 
@@ -58,33 +58,34 @@ namespace PickleTools.Criterion {
 		}
 
 		public static WorldStateData Draw(Rect position, WorldStateData worldStateData,
-										  ConditionLoader conditionLoader, TagLoader tagLoader,
+										  CriterionDataLoader<ConditionModel> conditionLoader, 
+		                                  CriterionDataLoader<TagModel> tagLoader,
 										  int dataCount,
 												ref List<ConditionSelectMenu> categoryTypeMenus,
 												ConditionSelectHandler callback,
 												GUISkin skin) {
 
-			if (conditionLoader == null || conditionLoader.ConditionModels.Length == 0 ||
-			  tagLoader == null || tagLoader.TagModels.Length == 0) {
-				conditionLoader = new ConditionLoader();
+			if (conditionLoader == null || conditionLoader.Models.Length == 0 ||
+			    tagLoader == null || tagLoader.Models.Length == 0) {
+				conditionLoader = new CriterionDataLoader<ConditionModel>();
 				conditionLoader.Load();
-				tagLoader = new TagLoader();
+				tagLoader = new CriterionDataLoader<TagModel>();
 				tagLoader.Load();
 			}
 
 			ConditionSelectMenu objectTypeMenu = null;
 			if (dataCount >= categoryTypeMenus.Count) {
 				objectTypeMenu = new ConditionSelectMenu();
-				for (int t = 0; t < tagLoader.TagNames.Length; t++) {
+				for (int t = 0; t < tagLoader.Names.Length; t++) {
 					List<ConditionModel> categoryEntries = new List<ConditionModel>();
-					for (int f = 0; f < conditionLoader.ConditionModels.Length; f++) {
-						for (int fTag = 0; fTag < conditionLoader.ConditionModels[f].Tags.Count; fTag++) {
-							if (conditionLoader.ConditionModels[f].Tags[fTag] == t) {
-								categoryEntries.Add(conditionLoader.ConditionModels[f]);
+					for (int f = 0; f < conditionLoader.Models.Length; f++) {
+						for (int fTag = 0; fTag < conditionLoader.Models[f].Tags.Count; fTag++) {
+							if (conditionLoader.Models[f].Tags[fTag] == t) {
+								categoryEntries.Add(conditionLoader.Models[f]);
 							}
 						}
 					}
-					objectTypeMenu.AddCategory(tagLoader.TagNames[t], categoryEntries.ToArray());
+					objectTypeMenu.AddCategory(tagLoader.Names[t], categoryEntries.ToArray());
 				}
 				categoryTypeMenus.Add(objectTypeMenu);
 				objectTypeMenu.EntrySelected += callback;
@@ -99,11 +100,11 @@ namespace PickleTools.Criterion {
 
 			EditorGUILayout.BeginHorizontal();
 
-			GUIContent objectTooltip = new GUIContent("Condition Type", conditionLoader.ConditionModels[worldStateData.ConditionUID].Name + ":\n" +
-														conditionLoader.ConditionModels[worldStateData.ConditionUID].Description);
+			GUIContent objectTooltip = new GUIContent("Condition Type", conditionLoader.Models[worldStateData.ConditionUID].Name + ":\n" +
+			                                          conditionLoader.Models[worldStateData.ConditionUID].Description);
 			EditorGUILayout.PrefixLabel(objectTooltip);
 			// Select object type from a category selector
-			if (GUILayout.Button(conditionLoader.ConditionModels[worldStateData.ConditionUID].Name)) {
+			if (GUILayout.Button(conditionLoader.Models[worldStateData.ConditionUID].Name)) {
 				float posX = Event.current.mousePosition.x - position.width * 0.2f;
 				float posY = Event.current.mousePosition.y;
 				objectTypeMenu.DrawSelectMenu("Select a condition",
@@ -115,7 +116,7 @@ namespace PickleTools.Criterion {
 
 			EditorGUI.indentLevel++;
 			worldStateData.Value = DrawValue.DrawValueField(worldStateData.Value,
-									 conditionLoader.ConditionModels[worldStateData.ConditionUID].ValueUID,
+			                                                conditionLoader.Models[worldStateData.ConditionUID].ValueUID,
 									new int[1] { 4000 + worldStateData.ConditionUID }).ToString();
 
 			// expiration

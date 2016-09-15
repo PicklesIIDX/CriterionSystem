@@ -23,30 +23,30 @@ namespace PickleTools.Criterion {
 		[SerializeField]
 		public int LastEntrySelected = -1;
 
-		ActionLoader actionLoader;
+		CriterionDataLoader<ActionModel> actionLoader;
 
 		public ActionSelectMenu(){
 			menu = new GenericMenu();
-			actionLoader = new ActionLoader();
+			actionLoader = new CriterionDataLoader<ActionModel>();
 			actionLoader.Load();
 
-			TagLoader tagLoader = new TagLoader();
+			CriterionDataLoader<TagModel> tagLoader = new CriterionDataLoader<TagModel>();
 			tagLoader.Load();
 
 
-			for(int t = 0; t < tagLoader.TagModels.Length; t ++){
+			for(int t = 0; t < tagLoader.Models.Length; t ++){
 				List<ActionModel> categoryEntries = new List<ActionModel>();
-				for(int a = 0; a < actionLoader.ActionModels.Length; a ++){
-					if(actionLoader.ActionModels[a] == null){
+				for(int a = 0; a < actionLoader.Models.Length; a ++){
+					if(actionLoader.Models[a] == null){
 						continue;
 					}
-					for(int cTag = 0; cTag < actionLoader.ActionModels[a].Tags.Length; cTag ++){
-						if(actionLoader.ActionModels[a].Tags[cTag] == tagLoader.TagModels[t].UID){
-							categoryEntries.Add(actionLoader.ActionModels[a]);
+                    for(int cTag = 0; cTag < actionLoader.Models[a].Tags.Length; cTag ++){
+						if(actionLoader.Models[a].Tags[cTag] == tagLoader.Models[t].UID){
+							categoryEntries.Add(actionLoader.Models[a]);
 						}
 					}
 				}
-				AddCategory(tagLoader.TagModels[t].Name, categoryEntries.ToArray());
+				AddCategory(tagLoader.Models[t].Name, categoryEntries.ToArray());
 			}
 
 			EntrySelected += HandleEntrySelected;
@@ -69,7 +69,7 @@ namespace PickleTools.Criterion {
 		}
 
 		public int DrawSelectMenu(string tooltip, Vector2 mousePosition, float screenWidth, GUISkin skin, params GUILayoutOption[] options){
-			ActionModel model = actionLoader.GetAction(LastEntrySelected);
+			ActionModel model = actionLoader.GetData(LastEntrySelected);
 			if(model == null){
 				return LastEntrySelected;
 			}

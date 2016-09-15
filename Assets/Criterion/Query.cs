@@ -26,8 +26,8 @@ namespace PickleTools.Criterion {
 			set { triggeredCallback = value; }
 		}
 
-		public Query(ConditionLoader conditionLoader){
-			ConditionLoader loader = conditionLoader;
+		public Query(CriterionDataLoader<ConditionModel> conditionLoader){
+			CriterionDataLoader<ConditionModel> loader = conditionLoader;
 			evalList = new List<QueryEvaluation>[loader.HighestUID];
 			for(int c = 0; c < evalList.Length; c ++){
 				evalList[c] = new List<QueryEvaluation>();

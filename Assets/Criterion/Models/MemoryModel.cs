@@ -4,8 +4,18 @@ using System.Collections;
 namespace PickleTools.Criterion {
 
 	[System.Serializable]
-	public class MemoryModel {
-
+	public class MemoryModel : ICriterionData {
+		
+		private int uid = -1;
+		public int UID {
+			get { return uid; }
+			set { uid = value; }
+		}
+		private string name = "";
+		public string Name {
+			get { return name; }
+			set { name = value; }
+		}
 		public MemoryFragmentModel[] Fragments = new MemoryFragmentModel[0];
 
 	}

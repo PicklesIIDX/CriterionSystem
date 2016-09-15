@@ -39,11 +39,11 @@ namespace PickleTools.Criterion {
 			
 		}
 
-		public TriggerObject(TriggerModel model, ConditionLoader conditionLoader){
+		public TriggerObject(TriggerModel model, CriterionDataLoader<ConditionModel> conditionLoader){
 			uid = model.UID;
-			conditionList = new List<TriggerConditionObject>[conditionLoader.ConditionModels.Length];
+			conditionList = new List<TriggerConditionObject>[conditionLoader.Models.Length];
 			for(int c = 0; c < model.Conditions.Length; c ++){
-				ConditionModel conditionModel = conditionLoader.GetCondition(model.Conditions[c].UID);
+				ConditionModel conditionModel = conditionLoader.GetData(model.Conditions[c].UID);
 
 				if(conditionList[model.Conditions[c].UID] == null) {
 					conditionList[model.Conditions[c].UID] = new List<TriggerConditionObject>();

@@ -22,8 +22,8 @@ namespace PickleTools.Criterion{
 		}
 		string LastTooltip { get; }
 
-		void Initialize(SequenceActionModel sequenceActionModel, ActionLoader newActionLoader, 
-		                ConditionLoader conditionLoader);
+		void Initialize(SequenceActionModel sequenceActionModel, CriterionDataLoader<ActionModel> newActionLoader, 
+		                CriterionDataLoader<ConditionModel> conditionLoader);
 		void Deinitialize();
 		void Draw(Rect drawSpace);
 		void RegisterUndo(SequenceActionModel sequenceActionModel);

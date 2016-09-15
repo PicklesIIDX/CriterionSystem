@@ -8,7 +8,7 @@ namespace PickleTools.Criterion {
 	public class MemoryViewInspector : Editor {
 
 		Memory memory;
-		MemoryLoader memoryLoader;
+		CriterionDataLoader<MemoryModel> memoryLoader;
 
 		Vector2 fragmentScrollPosition = Vector2.zero;
 
@@ -16,7 +16,7 @@ namespace PickleTools.Criterion {
 
 		ConditionSelectMenu conditionSelectMenu;
 
-		ConditionLoader conditionLoader;
+		CriterionDataLoader<ConditionModel> conditionLoader;
 
 		const string GUI_SKIN_PATH = "PickleTools/Editor/GUISkin.guiskin";
 
@@ -25,14 +25,13 @@ namespace PickleTools.Criterion {
 			MemoryView memoryView = target as MemoryView;
 			memory = memoryView.Memory;
 
-			conditionLoader = new ConditionLoader();
+			conditionLoader = new CriterionDataLoader<ConditionModel>();
 			conditionLoader.Load();
-			IFileSaver fileSaver = new EditorFileSaver("");
 
 			if(memory == null){
-				memoryLoader = new MemoryLoader();
-				memoryLoader.Load(fileSaver);
-				MemoryModel memoryModel = memoryLoader.GetMemory(0);
+				memoryLoader = new CriterionDataLoader<MemoryModel>();
+				memoryLoader.Load();
+				MemoryModel memoryModel = memoryLoader.GetData(0);
 				memory = new Memory(memoryModel, null, conditionLoader);
 			}
 			if(skin == null){
@@ -43,13 +42,13 @@ namespace PickleTools.Criterion {
 				conditionSelectMenu = new ConditionSelectMenu();
 				conditionSelectMenu.EntrySelected += ConditionSelectMenu_EntrySelected;
 
-				ConditionModel[] conditions = conditionLoader.ConditionModels;
-				TagLoader tagLoader = new TagLoader();
+				ConditionModel[] conditions = conditionLoader.Models;
+				CriterionDataLoader<TagModel> tagLoader = new CriterionDataLoader<TagModel>();
 				tagLoader.Load();
 
-				string[] tagTypes = new string[tagLoader.TagModels.Length];
+				string[] tagTypes = new string[tagLoader.Models.Length];
 				for(int t = 0; t < tagTypes.Length; t ++){
-					tagTypes[t] = tagLoader.TagModels[t].Name;
+					tagTypes[t] = tagLoader.Models[t].Name;
 				}
 				for(int t = 0; t < tagTypes.Length; t ++){
 					List<ConditionModel> categoryEntries = new List<ConditionModel>();
@@ -141,10 +140,10 @@ namespace PickleTools.Criterion {
 			int uid = item;
 			if(uid > 0 && memory.Fragments[uid].UID <= 0){
 
-				if(ValueTypeLoader.IsBoolValue(conditionLoader.GetCondition(uid).ValueUID)) {
+				if(ValueTypeLoader.IsBoolValue(conditionLoader.GetData(uid).ValueUID)) {
 					bool boolValue = false;
 					memory.EditMemory(uid, boolValue, 0.0f);
-				} else if(ValueTypeLoader.IsFloatValue(conditionLoader.GetCondition(uid).ValueUID)) {
+				} else if(ValueTypeLoader.IsFloatValue(conditionLoader.GetData(uid).ValueUID)) {
 					float floatValue = -1.0f;
 					memory.EditMemory(uid, floatValue, 0.0f);
 				} else {

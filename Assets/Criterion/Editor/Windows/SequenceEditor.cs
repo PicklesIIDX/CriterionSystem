@@ -48,11 +48,11 @@ namespace PickleTools.Criterion {
 
 		private int selectedTrigger = -1;
 
-		private SequenceLoader sequenceLoader;
+		private CriterionDataLoader<SequenceModel> sequenceLoader;
 		private SequenceModel[] sequenceModels = new SequenceModel[0];
 		private string error;
-		private ActionLoader actionLoader;
-		private ConditionLoader conditionLoader;
+		private CriterionDataLoader<ActionModel> actionLoader;
+		private CriterionDataLoader<ConditionModel> conditionLoader;
 
 		private int totalTrackDepth = 0;
 		private int totalChainLength = 0;
@@ -85,81 +85,6 @@ namespace PickleTools.Criterion {
 		private Texture iconNull;
 		private Texture iconNullHover;
 		private Texture iconNullClick;
-		private Texture iconMoveObject;
-		private Texture iconMoveObjectHover;
-		private Texture iconMoveObjectClick;
-		private Texture iconShowDialogue;
-		private Texture iconShowDialogueHover;
-		private Texture iconShowDialogueClick;
-		private Texture iconShowDialogueChoice;
-		private Texture iconShowDialogueChoiceHover;
-		private Texture iconShowDialogueChoiceClick;
-		private Texture iconUpdateWorldState;
-		private Texture iconUpdateWorldStateHover;
-		private Texture iconUpdateWorldStateClick;
-		private Texture iconSpriteAnimation;
-		private Texture iconSpriteAnimationHover;
-		private Texture iconSpriteAnimationClick;
-		private Texture iconPlaySound;
-		private Texture iconPlaySoundHover;
-		private Texture iconPlaySoundClick;
-		private Texture iconLinkAction;
-		private Texture iconLinkActionHover;
-		private Texture iconLinkActionClick;
-		private Texture iconChangeScene;
-		private Texture iconChangeSceneHover;
-		private Texture iconChangeSceneClick;
-		private Texture iconChangeInventory;
-		private Texture iconChangeInventoryHover;
-		private Texture iconChangeInventoryClick;
-		private Texture iconSetState;
-		private Texture iconSetStateHover;
-		private Texture iconSetStateClick;
-		private Texture iconEnableCommand;
-		private Texture iconEnableCommandHover;
-		private Texture iconEnableCommandClick;
-		private Texture iconSetHull;
-		private Texture iconSetHullHover;
-		private Texture iconSetHullClick;
-		private Texture iconSetGameTime;
-		private Texture iconSetGameTimeHover;
-		private Texture iconSetGameTimeClick;
-		private Texture iconSetScrollSpeed;
-		private Texture iconSetScrollSpeedHover;
-		private Texture iconSetScrollSpeedClick;
-		private Texture iconWait;
-		private Texture iconWaitHover;
-		private Texture iconWaitClick;
-		private Texture iconFullScreenEffect;
-		private Texture iconFullScreenEffectHover;
-		private Texture iconFullScreenEffectClick;
-		private Texture iconUpdateBehaviorVariable;
-		private Texture iconUpdateBehaviorVariableHover;
-		private Texture iconUpdateBehaviorVariableClick;
-		private Texture iconSetWeapon;
-		private Texture iconSetWeaponHover;
-		private Texture iconSetWeaponClick;
-		private Texture iconObjectSpawn;
-		private Texture iconObjectSpawnHover;
-		private Texture iconObjectSpawnClick;
-		private Texture iconDebugLog;
-		private Texture iconDebugLogHover;
-		private Texture iconDebugLogClick;
-		private Texture iconDisplayDoc;
-		private Texture iconDisplayDocHover;
-		private Texture iconDisplayDocClick;
-		private Texture iconDialogueTimer;
-		private Texture iconDialogueTimerHover;
-		private Texture iconDialogueTimerClick;
-		private Texture iconScreenShake;
-		private Texture iconScreenShakeHover;
-		private Texture iconScreenShakeClick;
-		private Texture iconChangeDirectorBehavior;
-		private Texture iconChangeDirectorBehaviorHover;
-		private Texture iconChangeDirectorBehaviorClick;
-		private Texture iconChangeDirectorPatterns;
-		private Texture iconChangeDirectorPatternsHover;
-		private Texture iconChangeDirectorPatternsClick;
 
 		private Texture iconBack;
 		private Texture iconForward;
@@ -231,16 +156,16 @@ namespace PickleTools.Criterion {
 		}
 
 		void Refresh() {
-			sequenceLoader = new SequenceLoader();
+			sequenceLoader = new CriterionDataLoader<SequenceModel>();
 			sequenceLoader.Load();
 			sequenceModels = new SequenceModel[sequenceLoader.HighestUID + 1];
-			for (int s = 0; s < sequenceLoader.SequenceModels.Length; s++) {
-				sequenceModels[s] = sequenceLoader.SequenceModels[s];
+			for (int s = 0; s < sequenceLoader.Models.Length; s++) {
+				sequenceModels[s] = sequenceLoader.Models[s];
 			}
 
-			actionLoader = new ActionLoader();
+			actionLoader = new CriterionDataLoader<ActionModel>();
 			actionLoader.Load();
-			conditionLoader = new ConditionLoader();
+			conditionLoader = new CriterionDataLoader<ConditionModel>();
 			conditionLoader.Load();
 		}
 
@@ -400,7 +325,7 @@ namespace PickleTools.Criterion {
 			GUILayout.BeginArea(headerRect);
 			GUILayout.BeginHorizontal(skin.FindStyle("title"));
 			string titleString = "No Trigger Selected";
-			SequenceModel sequence = sequenceLoader.GetSequence(selectedTrigger);
+			SequenceModel sequence = sequenceLoader.GetData(selectedTrigger);
 			if (sequence != null) {
 				titleString = sequence.Name;
 			}
@@ -776,7 +701,7 @@ namespace PickleTools.Criterion {
 
 		private void SelectActionType(int actionUID) {
 			SequenceActionModel action = new SequenceActionModel();
-			ActionModel model = actionLoader.GetAction(actionUID);
+			ActionModel model = actionLoader.GetData(actionUID);
 			action.UID = model.UID;
 			action.Parameters = new object[model.Parameters.Length];
 			for (int p = 0; p < model.Parameters.Length; p++) {
@@ -908,7 +833,7 @@ namespace PickleTools.Criterion {
 
 
 		void Save() {
-			sequenceLoader.SequenceModels[map.Sequence.UID] = map.Sequence;
+			sequenceLoader.Models[map.Sequence.UID] = map.Sequence;
 			EditorFileSaver fileSaver = new EditorFileSaver("");
 			sequenceLoader.Save(fileSaver);
 			EditorPrefs.SetString(PREFS_CURRENT_SEQUENCE, LitJson.JsonMapper.ToJson(map.Sequence));
